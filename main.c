@@ -23,8 +23,7 @@ int is_square(long long int value) {
         return 0;
     }
     /*
-    Применим математическую хитрость про то,
-    что квадрат натурального числа всегда можно представить как сумму первых n нечётных чисел
+    Квадрат натурального числа n всегда можно представить как сумму первых n нечётных чисел
     */
     long long int odd = 1;
     //Спокойно меняем value, ведь это лишь копия оригинального значения.
@@ -87,32 +86,33 @@ int main(void) {
     
     long long int solution = 0;
     int solved = 0;
-    if (numbers[0] == numbers[1]) {
-        solved = 2;
-    } else if (is_square(numbers[0]) && is_square(numbers[1])) {
+    if (is_square(numbers[0]) && is_square(numbers[1])) {
+        solved = 1;
+    } else if (numbers[0] == numbers[1]) {
+        solution = numbers[0]*-1;
         solved = 1;
     } else { 
         /*
         Немножко (множко) подумав, мы понимаем, что решение задачки выглядит как:
-        numbers[0] + test_value = a^2;
-        numbers[1] + test_value = b^2;
-        a, b, test_value - должны существовать в целых числах, numbers[] существуют и так.
+        numbers[0] + solution = a^2;
+        numbers[1] + solution = b^2;
+        a, b, solution - должны существовать в целых числах, numbers[] существуют и так.
 
         Попробуем вычесть одно из другого, получим:
         numbers[1] - numbers[0] = b^2 - a^2 = (b-a)(b+a)
         Работаем с целыми числами, значит, можем пользоваться суммой/разностью чётных/нечётных.
         Итак, представим:
         b % 2 == 1, a % 2 == 0
-        b-a % 2 = 1
-        b+a % 2 = 1
+        b-a % 2 == 1
+        b+a % 2 == 1
 
         b % 2 == 1, a % 2 == 1
-        b-a % 2 = 0
-        b+a % 2 = 0
+        b-a % 2 == 0
+        b+a % 2 == 0
 
         b % 2 == 0, a % 2 == 0
-        b-a % 2 = 0
-        b+a % 2 = 0
+        b-a % 2 == 0
+        b+a % 2 == 0
 
         Получается, что numbers[1] - numbers[0] всегда будет == нечёт*нечёт или чёт*чёт
         Это мы уже можем проверить
@@ -145,17 +145,11 @@ int main(void) {
         }
     }
 
-    switch (solved) {
-        case 0:
-            printf("К сожалению, мы не нашли решения.\n");
-            break;
-        case 1:
-            printf("Число, удовлетворяющее условию: %lli\n", solution);
-            break;
-        case 2:
-            printf("Любой квадрат будет решением для данных параметров.\n");
-            break;    
-    }   
+    if (solved) {
+        printf("Число, удовлетворяющее условию: %lli\n", solution);
+    } else {
+        printf("К сожалению, мы не нашли решения.\n");
+    }
 
     return 0;
 }
