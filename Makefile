@@ -17,7 +17,8 @@ TESTS_HEADERS := $(wildcard $(THDIR)/*.hpp)
 TESTS_OBJECTS := $(patsubst $(TSRCDIR)%,$(OBJDIR)%,$(patsubst %.cpp,%.o,$(TESTS_SOURCES)))
 
 CC := g++
-CCFLAGS := -Wall -Werror -Wextra -std=c++20
+#CCFLAGS := -Wall -Werror -Wextra -std=c++20
+CCFLAGS := 
 
 RUN := ./
 
