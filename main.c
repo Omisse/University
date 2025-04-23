@@ -75,13 +75,14 @@ void swap_values(double* v1, double* v2) {
 
 В результате кучи перемещений получаем отсортированный массив.
 */
-void demon_sort(double* const values, ull low, ull high) {
+ull demon_sort(double* const values, ull low, ull high) {
     //Определяем "серединку" нашего массива
     //Для чётных массивов всё понятно, для нечётных - нижняя часть будет на единичку больше
     ull low_end = (high+low)/2;
     //Мы не хотим, чтобы при дроблении массива в обоих частях оказался один и тот же элемент.
     ull high_start = low_end+1;
     double *v1, *v2;
+    ull actions = 2;
     //Расшифровываем, что происходит:
     /*
     Пока _наименьшее_ из значений правой части массива меньше, чем наибольшее из левой части - 
@@ -89,18 +90,24 @@ void demon_sort(double* const values, ull low, ull high) {
     */
     while (min_value(values, high_start, high, &v1) < max_value(values, low, low_end, &v2)) {
         swap_values(v1, v2);
+        actions += 3*(high-low+4);
     }
+    //3*(end-start+1) - трудоёмкость min_, max_value в худшем случае. == 3N
+    //Внутри цикла добавим три действия для замены переменной.
+    actions += 3*(high-low+1);
     //Тут у нас получается ситуация, что в левой половинке каждое из чисел меньше, чем каждое из правой.
     /*
     Чтобы не выдумывать чудес, рекурсивно вызываем этот же алгоритм до тех пор,
     пока область работы не станет меньше двух элементов.
     */
     if (high > high_start) {
-        demon_sort(values, high_start, high);
+        actions += demon_sort(values, high_start, high);
     }
     if (low_end > low) {
-        demon_sort(values, low, low_end);
+        actions += demon_sort(values, low, low_end);
     }
+    actions += 2;
+    return actions;
 }
 
 //Форматированный вывод массива, используем дважды, так что почему бы и не вынести
@@ -132,9 +139,10 @@ int main(void) {
         Теперь мы работаем с индексами, помня, что < стало <=,
         а само число на единичку меньше.
         */
-        demon_sort(values,0, amount-1);
+        ull actions = demon_sort(values,0, amount-1);
         printf("Итоговый массив [%llu]: ", amount);
         print_array(values, amount);
+        printf("Трудоёмкость: %llu действий для %llu значений.\n", actions, amount);
         /*
         В комментариях к parsing.c есть строчка про это, но напомним:
         наш массив значений выделяется в куче, это динамическая память,
