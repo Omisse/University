@@ -31,14 +31,10 @@ List* insert(int new_value, List* head) {
 }
 
 List* push_back(int new_value, List* head) {
-    if (!head) {
-        return new List(new_value);
-    }
+    if (!head) return new List(new_value);
 
     List* traversal = head;
-    while (traversal->next) {
-        traversal = traversal->next;
-    }
+    while (traversal->next) traversal = traversal->next;
     traversal->next = new List(new_value);
     return head;
 }
@@ -50,9 +46,7 @@ List* insert_sorted(int new_value, List* head) {
     }
 
     List* traversal = head;
-    while (new_value > traversal->value && traversal->next) {
-        traversal = traversal->next;
-    }
+    while (new_value > traversal->value && traversal->next) traversal = traversal->next;
     List* alloc_ptr = insert(new_value, traversal->next);
     if (alloc_ptr) {
         traversal->next = alloc_ptr;
@@ -129,10 +123,7 @@ int get_user_choice() {
         user_choice = fgetc(stdin);
     }
     char ch = 'f';
-    while (!isdigit(ch) && ch != '\n' && ch != EOF) {
-        ch = fgetc(stdin);
-    }
-    if (isdigit(ch)) ungetc(ch, stdin);
+    while (ch && ch != '\n' && ch != EOF) ch = fgetc(stdin);
     return user_choice-'0';
 }
 
@@ -158,6 +149,7 @@ List* get_user_list() {
         }
     }
     if (err) {
+        while (ch && ch != '\n' && ch != EOF) ch = fgetc(stdin);
         delete_list(out);
         out = 0;
     }
@@ -246,8 +238,8 @@ int main(void) {
                 List* addr = lstlst(L1, L2);
                 if (addr) printf("Вхождение найдено, адрес: %p\n", addr);
                 else printf("L1 не входит в L2.\n");
-                delete_list(L1); delete_list(L2);
             } else printf("Ошибка ввода.\n");
+            delete_list(L1); delete_list(L2);
         }
     }
     
