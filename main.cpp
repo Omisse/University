@@ -1,7 +1,5 @@
 #include <cctype>
 #include <clocale>
-#include <cstdlib>
-#include <cstring>
 #include <stdio.h>
 
 #define STR_ACTIONS \
