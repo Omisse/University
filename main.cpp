@@ -167,42 +167,54 @@ void print_list(List* head) {
     printf("\n");
 }
 
-double get_average(List* head) {
-    int elements = 0;
-    double sum = 0.0f;
-    double out = 0.0f;
+//Вычисление среднего арифметического
+double get_average(List* head)
+{ //если списка на входе нет, выдаст 0
+    int elements = 0; //счётчик элементов
+    double sum = 0.0f;//сумма и результат(переиспользуется)
     while (head) {
-        sum += head->value;
-        elements++;
-        head = head->next;
+        sum += head->value; //+значение
+        head = head->next; //переход дальше
+        elements++; //+количество элементов
     }
-    if (elements) out = sum / elements;
-    return out;
+    if (elements) sum /= elements; //на 0 делить нельзя!
+    return sum;
 }
 
-List* lstlst(List* needle, List* haystack) {
-    if (!needle || !haystack) {
-        return 0;
-    }
-
-    List* out = 0;
-    while (haystack && !out) {
-        if (haystack->value == needle->value) {
+//поиск вхождения
+List* lstlst(List* needle, List* haystack)
+{
+    List* out = 0; //адрес вхождения
+    //некорректные данные - вернём 0 (вхождения нет)
+    if (!needle || !haystack) return out;
+    
+    while (haystack && !out)
+    { //пока есть где искать, и ещё не нашли
+        //если значения равны, то:
+        if (haystack->value == needle->value)
+        {
+            //снова идём вперёд
             List *hptr = haystack, *nptr = needle;
+            //val_diff станет ненулевым, если значения отличаются
             long long int val_diff = 0;
-            while (hptr && nptr && !val_diff) {
+            while (hptr && nptr && !val_diff)
+            { //пока не отличаются...
                 val_diff = hptr->value - nptr->value;
                 hptr = hptr->next;
                 nptr = nptr->next;
             }
+            //Если отличий нет, а список-вхождение уже кончился - значит, найдено
             if (!val_diff && !nptr) out = haystack;
         }
+        //движение дальше по списку в котором ищем вхождение
         haystack = haystack->next;
     }
+    //возвращаем адрес вхождения, если найден, иначе 0.
     return out;
 }
 
 int main(void) {
+    /**/
     setlocale(LC_ALL, "Russian");
     int user_choice = 3;
     while (user_choice) {
@@ -242,7 +254,5 @@ int main(void) {
             delete_list(L1); delete_list(L2);
         }
     }
-    
-    
     return 0;
 }
