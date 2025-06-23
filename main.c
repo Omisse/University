@@ -1,54 +1,46 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <locale.h>
 
-void swap_values(char* ptr1, char* ptr2) {
+//вспомогательная функция смены значений местами.
+void swap_values(char* ptr1, char* ptr2)
+{
     char buff = *ptr1;
     *ptr1 = *ptr2;
     *ptr2 = buff;
     return;
 }
 
-int print_permutations(char* const source, char* const locked_ptr) {
-    if (!source || !locked_ptr) {
-        return 0;
-    }
-
+//вывод перестановок
+int print_permutations(char* const source, char* const locked_ptr) 
+{
+    //если на входе что-то не так - вернём ошибку
+    if (!source || !locked_ptr) return 0;
+    
+    //если служебный указатель дошёл до конца строки - выведем итоговую строку
     if (!*locked_ptr) printf("%s\n",source);
+    //начиная с позиции служебного указателя(при первом вызове - 0, далее - по элементам строки)
     char* move_ptr = locked_ptr;
-    while (*move_ptr) {
+    //пока строка не кончилась
+    while (*move_ptr)
+    {   
+        //поменяем местами значения по указателям (при первом вызове ничего не изменится)
         swap_values(locked_ptr, move_ptr);
+        //рекурсивный вызов со сдвигом постоянной позиции на 1 (позиции "зафиксированного" элемента)
         print_permutations(source, locked_ptr+1);
+        //поменяем местами обратно для следующего вызова.
         swap_values(locked_ptr, move_ptr);
+        //движемся по строке далее
         move_ptr++;
     }
     return 1;
 }
 
 int main() {
-    printf("Please, enter any amount of symbols:\n");
-
-    char ch = 'e';
-    unsigned long input_size = 1;
-    char* usr_input = malloc(input_size*sizeof(char));
-    int err = 0;
-    for (unsigned long i = 1; ch && ch != '\n' && !err; i++) {
-        ch = fgetc(stdin);
-        if (input_size < i) {
-            input_size*=2;
-            char* realloc_result = realloc(usr_input, input_size*sizeof(char));
-            if (realloc_result) usr_input = realloc_result;
-            else {
-                free(usr_input);
-                err = 1;
-            }
-        }     
-        if (!err) usr_input[i-1] = ch != '\n' && ch != EOF ? ch : 0;
-    }
-    if (!err) {       
-        err = !print_permutations(usr_input, usr_input);
-        free(usr_input);
-    } else {
-        printf("Memory allocation error: looks like we're exceeded the limits!\n");
-    }
-    return err;
+    setlocale(LC_ALL, "Russian");
+    char user_input[BUFSIZ] = {0};
+    printf("Введите символы, не более %d:\n", BUFSIZ);
+    scanf("%s", user_input);
+    print_permutations(user_input, user_input);
+    return 0;
 }
