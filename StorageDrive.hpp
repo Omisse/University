@@ -2,99 +2,86 @@
 #define STORAGE_DRIVE_HPP
 
 #include <string>
-#include <map>
-#include <vector>
 
 namespace Task
 {
     class StorageDrive
     {
         public:
-            enum class DriveTypes
+            enum class DriveTypes //перечисление видов накопителя
             {
                 DT_SSD = 1 << 0,
                 DT_HDD = 1 << 1,
             };
 
-            enum class PartitionTypes
+            enum class PartitionTypes //перечисление типов таблицы разделов
             {
                 PT_UNPARTITIONED = 0,
                 PT_MBR = 1 << 0,
                 PT_GPT = 1 << 1,
             };
-
-            struct VolumeInfo
-            {
-                unsigned long ID;
-                std::string name;
-                std::string filesystem;
-                unsigned long long size;
-            };
-
-            StorageDrive(
-                std::string vendor,
-                std::string model,
-                std::string serial,
-                DriveTypes driveType,
-                PartitionTypes partitionType,
-                unsigned long long storageSpace,
-                unsigned long long clusterSize
+            StorageDrive(); //конструктор по умолчанию
+            StorageDrive( //конструктор информационной составляющей
+                std::string& Vendor, //производитель
+                std::string& Model, //модель
+                std::string& Serial, //серийный номер
+                DriveTypes DriveType //вид накопителя
             );
 
-            std::string GetVendor() const;
-            std::string GetModel() const;
-            std::string GetSerialNumber() const;
-            DriveTypes GetDriveType() const;
-            std::string GetDriveTypeName() const;
-            PartitionTypes GetPTableType() const;
-            std::string GetPTableName() const;
-            unsigned long GetClusterSize() const;
-            bool IsPartitioned() const;
+            StorageDrive( //конструктор технической составляющей
+                DriveTypes DriveType, //вид накопителя
+                PartitionTypes PartitionType, //тип таблицы разделов
+                unsigned long long StorageSpace, //ёмкость
+                unsigned long VolumeAmount, //количество разделов
+                unsigned long long VolumeSizeSum //суммарный объём разделов
+            );
 
-            unsigned long long GetStorageSpace() const;
-            unsigned long long GetFreeSpace() const;
-            unsigned long long GetUselessSpace() const;
+            StorageDrive( //полный конструктор
+                std::string& Vendor, //производитель
+                std::string& Model,//модель
+                std::string& Serial,//серийный номер
+                DriveTypes DriveType,//вид накопителя
+                PartitionTypes PartitionType,//тип таблицы разделов
+                unsigned long long StorageSpace,//ёмкость
+                unsigned long VolumeAmount,//количество разделов
+                unsigned long long VolumeSizeSum//суммарный объём разделов
+            );
 
-            void Repartition(PartitionTypes newPType, unsigned long newClusterSize);
+            std::string GetVendor() const; //получить значение поля "производитель"
+            std::string GetModel() const;//получить значение поля "модель"
+            std::string GetSerialNumber() const;//получить значение поля "серийный номер"
+            DriveTypes GetDriveType() const;//получить значение поля "вид накопителя"
+            std::string GetDriveTypeName() const;//получить значение поля "вид накопителя" в виде строки
+            PartitionTypes GetPTableType() const;//получить значение поля "тип таблицы разделов"
+            std::string GetPTableName() const;//получить значение поля "тип таблицы разделов" в виде строки
+            unsigned long GetVolumeAmount() const;//получить значение поля "количество разделов"
+            unsigned long long GetVolumeSizeSum() const;//получить значение поля "суммарный объём разделов"
+            
 
-            unsigned long GetVolumeAmount() const;
-            unsigned long long GetVolumeSizeSum() const;
-            std::vector<VolumeInfo> GetVolumes() const;
+            unsigned long long GetStorageSpace() const;//получить значение поля "ёмкость"
+            unsigned long long GetFreeSpace() const;//получить информацию о незанятом месте на накопителе
 
-            std::vector<unsigned int> GetVolumeIDs() const;
-            std::string GetVolumeName(unsigned int ID) const;
-            std::string GetVolumeFilesystem(unsigned int ID) const;
-            unsigned long long GetVolumeSize(unsigned int ID) const;
+            void SetVendor(std::string& newVendor); //установить значение поля "производитель"
+            void SetModel(std::string& newModel); //установить значение поля "модель"
+            void SetSerial(std::string& newSerial); //установить значение поля "серийный номер"
+            void SetDriveType(DriveTypes newDriveType); //установить значение поля "вид накопителя"
+            void SetStorageSpace(unsigned long long newStorageSpace); //установить значение поля "ёмкость
+            void SetVolumeData(unsigned long newAmount, unsigned long long newSum); //установить значения полей "количество разделов" и "суммарный объём разделов"
+            void SetPTableType(PartitionTypes newPTableType); //установить значение поля "тип таблицы разделов"
 
-            unsigned int CreateVolume(const std::string& name, const std::string& filesystem, unsigned long long volumeSize);
-            void SetVolumeName(unsigned int ID, const std::string& newVolumeName);
-            unsigned int GenVolumeID() const;
+            bool IsPartitioned() const; //получить информацию о наличии таблицы разделов
 
         private:
-            class Volume
-            {
-                public:
-                    Volume(const std::string& volName, const std::string& filesystem,unsigned long long volSize, unsigned int clusterSize);
-                    std::string GetName() const;
-                    std::string GetFilesystem() const;
-                    unsigned long long GetSize() const;
-                    void Rename(const std::string& newName);
-                    
-                private:
-                    std::string name;
-                    std::string fSystem;
-                    unsigned long long size;
-            };
-            std::string _vendor;
-            std::string _model;
-            std::string _serial;
-            DriveTypes _driveType;
-            unsigned long long _storageSpace;
-            std::map<unsigned long, Volume> volumes;
-            unsigned int _clusterSize;
-            PartitionTypes _partitionType;
+            std::string vendor; //производитель
+            std::string model; //модель
+            std::string serial; //серийный номер
+            DriveTypes driveType; //вид накопителя
+            PartitionTypes partitionType; //тип таблицы разделов
+            unsigned long long storageSpace; //ёмкость
+            unsigned long volumeAmount; //количество разделов
+            unsigned long long volumeSizeSum; //суммарный объём разделов
 
-            static bool IsValidString(std::string sample);
+            bool IsValidString(std::string sample); //служебная функция проверки корректности входной строки
     };
 }
 #endif
