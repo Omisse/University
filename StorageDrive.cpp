@@ -1,33 +1,31 @@
+#include <exception>
 #include <stdexcept>
 #include <string>
+#include <vector>
+#include <unordered_map>
 
 #include "StorageDrive.hpp"
+
 
 namespace Task
 {
     StorageDrive::StorageDrive()
     {
-        //в данном случае строки создаются в конструкторе,
-        //поскольку в методах предполагается ссылочный тип(для экономии памяти)
-        //а значит, мы не можем ссылаться на "входные" данные - это не lvalue
-        //и они исчезнут как только будут получены
-        std::string _vendor("Unknown Vendor");
-        std::string _model("Generic Storage Drive");
-        std::string _serial("Unknown");
-
-        SetVendor(_vendor);
-        SetModel(_model);
-        SetSerial(_serial);
+        //Я был неправ в ЛР5, дело в том, что я не константы принимал.
+        SetVendor("Unknown Vendor");
+        SetModel("Generic Storage Drive");
+        SetSerial("Unknown");
         SetDriveType(DriveTypes::DT_HDD);
         SetStorageSpace(0);
         SetPTableType(PartitionTypes::PT_UNPARTITIONED);
-        SetVolumeData(0, 0);
+        volumes.clear();
+        lastUsedID = 0;
     }
 
     StorageDrive::StorageDrive(
-        std::string& Vendor,
-        std::string& Model,
-        std::string& Serial,
+        const std::string& Vendor,
+        const std::string& Model,
+        const std::string& Serial,
         DriveTypes DriveType
     )
     {
@@ -37,43 +35,34 @@ namespace Task
         SetDriveType(DriveType);
         SetStorageSpace(0);
         SetPTableType(PartitionTypes::PT_UNPARTITIONED);
-        SetVolumeData(0, 0);
+        volumes.clear();
+        lastUsedID = 0;
     }
 
     StorageDrive::StorageDrive(
         DriveTypes DriveType,
         PartitionTypes PartitionType,
-        unsigned long long StorageSpace,
-        unsigned long VolumeAmount,
-        unsigned long long VolumeSizeSum
+        unsigned long long StorageSpace
     )
     {
-        //в данном случае строки создаются в конструкторе,
-        //поскольку в методах предполагается ссылочный тип(для экономии памяти)
-        //а значит, мы не можем ссылаться на "входные" данные - это не lvalue
-        //и они исчезнут как только будут получены
-        std::string _vendor("Unknown Vendor");
-        std::string _model("Generic Storage Drive");
-        std::string _serial("Unknown");
-
-        SetVendor(_vendor);
-        SetModel(_model);
-        SetSerial(_serial);
+        //Я был неправ в ЛР5, дело в том, что я не константы принимал.
+        SetVendor("Unknown Vendor");
+        SetModel("Generic Storage Drive");
+        SetSerial("Unknown");
         SetDriveType(DriveType);
         SetStorageSpace(StorageSpace);
         SetPTableType(PartitionType);
-        SetVolumeData(VolumeAmount, VolumeSizeSum);
+        volumes.clear();
+        lastUsedID = 0;
     }
 
     StorageDrive::StorageDrive(
-        std::string& Vendor,
-        std::string& Model,
-        std::string& Serial,
+        const std::string& Vendor, 
+        const std::string& Model,
+        const std::string& Serial,
         DriveTypes DriveType,
         PartitionTypes PartitionType,
-        unsigned long long StorageSpace,
-        unsigned long VolumeAmount,
-        unsigned long long VolumeSizeSum
+        unsigned long long StorageSpace
     )
     {
         SetVendor(Vendor);
@@ -82,7 +71,8 @@ namespace Task
         SetDriveType(DriveType);
         SetStorageSpace(StorageSpace);
         SetPTableType(PartitionType);
-        SetVolumeData(VolumeAmount, VolumeSizeSum);
+        volumes.clear();
+        lastUsedID = 0;
     }
 
     std::string StorageDrive::GetVendor() const 
@@ -126,22 +116,7 @@ namespace Task
             out = std::string("MBR");
         }
         return out;
-    }
-
-    unsigned long StorageDrive::GetVolumeAmount() const 
-    {
-        return volumeAmount;
-    }
-
-    unsigned long long StorageDrive::GetVolumeSizeSum() const 
-    {
-        return volumeSizeSum;
-    }
-
-    unsigned long long StorageDrive::GetStorageSpace() const 
-    {
-        return storageSpace;
-    }
+    }    
 
     unsigned long long StorageDrive::GetFreeSpace() const 
     {
@@ -150,9 +125,9 @@ namespace Task
         return storageSpace-GetVolumeSizeSum();
     }
 
-    void StorageDrive::SetVendor(std::string& newVendor)
+    void StorageDrive::SetVendor(const std::string& newVendor)
     {
-        if (!IsValidString(newVendor))
+        if (!_IsValidString(newVendor))
         {
             throw std::invalid_argument("Поле \"Производитель\": некорректный ввод!");
         };
@@ -161,9 +136,9 @@ namespace Task
     }
 
 
-    void StorageDrive::SetModel(std::string& newModel) 
+    void StorageDrive::SetModel(const std::string& newModel) 
     {
-        if (!IsValidString(newModel))
+        if (!_IsValidString(newModel))
         {
             throw std::invalid_argument("Поле \"Модель\": некорректный ввод!");
         }
@@ -172,9 +147,9 @@ namespace Task
     }
 
 
-    void StorageDrive::SetSerial(std::string& newSerial) 
+    void StorageDrive::SetSerial(const std::string& newSerial) 
     {
-        if (!IsValidString(newSerial))
+        if (!_IsValidString(newSerial))
         {
             throw std::invalid_argument("Поле \"Серийный номер\": некорректный ввод!");
         }
@@ -193,52 +168,12 @@ namespace Task
         SetPTableType(PartitionTypes::PT_UNPARTITIONED);
     }
 
-
-    void StorageDrive::SetVolumeData(unsigned long newAmount, unsigned long long newSum)
-    {   
-        //если нет таблицы, но значение ненулевое
-        if (!IsPartitioned() && (newAmount != 0 || newSum!= 0))
-        {
-            throw std::invalid_argument("На неразмеченном накопителе не может быть разделов!");
-        }
-        //если ёмкость диска не определилась, а значение ненулевое
-        if (storageSpace == 0 && (newAmount != 0 || newSum != 0))
-        {
-            throw std::invalid_argument("На накопителе нет места для разделов.");
-        }
-        //если только одно из значений ненулевое
-        if ((newAmount && !newSum) || (newSum && !newAmount))
-        {
-            throw std::invalid_argument("Количество разделов и их суммарный объём могут быть 0 только одновременно!");
-        }
-        //если объём меньше количества разделов
-        if (newSum < newAmount)
-        {
-            throw std::invalid_argument("Суммарный объём разделов не может быть меньше их количества!");
-        }
-        //если объём больше ёмкости
-        if (newSum > storageSpace)
-        {
-            throw std::invalid_argument("Суммарный объём разделов не может быть больше ёмкости накопителя!");
-        }
-        
-        volumeAmount = newAmount;
-        volumeSizeSum = newSum;
-    }
-
-    void StorageDrive::SetPTableType(PartitionTypes newPTableType) 
-    {
-        //очистить записи о разделах
-        SetVolumeData(0, 0);
-        partitionType = newPTableType;
-    }
-
     bool StorageDrive::IsPartitioned() const 
     {
         return !(partitionType == PartitionTypes::PT_UNPARTITIONED);
     }
 
-    bool StorageDrive::IsValidString(std::string sample) {
+    bool StorageDrive::_IsValidString(const std::string& sample) {
         int isNotSpecial = true;
         //данная функция не учитывает конец таблицы ASCII, а так же кириллические символы
         //кириллица не учитывается по причине необходимости переработки строки под "широкие" символы
@@ -250,5 +185,133 @@ namespace Task
         //также проверим "непустоту" строки.
         return !sample.empty() && isNotSpecial;
     }
+    
+    unsigned long StorageDrive::GetVolumeAmount() const 
+    {
+        return volumes.size();
+    }
 
+    unsigned long long StorageDrive::GetVolumeSizeSum() const 
+    {
+        unsigned long long sum = 0;
+        for (auto vol{volumes.begin()}; vol != volumes.end(); vol++)
+        {
+            sum += vol->second.GetSize();
+        }
+        return sum;
+    }
+
+    unsigned long long StorageDrive::GetStorageSpace() const 
+    {
+        return storageSpace;
+    }
+
+    void StorageDrive::SetPTableType(PartitionTypes type)
+    {
+        partitionType = type;
+        volumes.clear();    
+    }
+
+    bool StorageDrive::_doIFit(unsigned long long startByte, unsigned long long endByte) const
+    {
+        bool fit = endByte < storageSpace;
+        unsigned long long tempStart, tempEnd;
+        for (auto vol{volumes.begin()}; vol != volumes.end() && fit; vol++)
+        {
+            tempStart = vol->second.GetStartByte();
+            tempEnd = vol->second.GetEndByte();
+            //если хоть один из адресов оказался в пределах запрошенного - невозможно создать раздел.
+            fit &= !((startByte <= tempStart) && (tempStart <= endByte));
+            fit &= !((startByte <= tempEnd) && (tempEnd <= endByte));
+        }
+        return fit;
+    }
+
+    void StorageDrive::CreateVolume(unsigned long long startByte, unsigned long long endByte, const std::string& name, const std::string& filesystem)
+    {
+        Volume* vol = 0;
+        if (partitionType == PartitionTypes::PT_UNPARTITIONED)
+        {
+            throw std::domain_error("Невозможно создать раздел на неразмеченном накопителе");
+        }
+        if (!_doIFit(startByte, endByte))
+        {
+            throw std::out_of_range("Раздел с такими адресами не может быть расположен на накопителе.");
+        }
+        try
+        {
+            vol = new Volume(name, filesystem, startByte, endByte);
+        }
+        catch (const std::logic_error& ex)
+        {
+            delete(vol);
+            throw ex;
+        }
+        volumes.insert({lastUsedID++, *vol});
+        delete(vol);
+    }
+
+    std::vector<unsigned long> StorageDrive::GetVolumeIDs() const
+    {
+        std::vector<unsigned long> out;
+        out.reserve(volumes.size());
+        for (auto vol{volumes.begin()}; vol != volumes.end(); vol++)
+        {
+            out.push_back(vol->first);
+        }
+        return out;
+    }
+
+    bool StorageDrive::DeleteVolume(unsigned long ID)
+    {
+        //В качестве информации передадим дальше bool = true, если удаление успешно.
+        return volumes.erase(ID) != 0;
+        //Можно было бы вызвать исключение если такого ID не было в нашем словаре
+        //Но глобально - если его не было, ничего не изменилось, критической ошибки не произошло.
+    }
+
+    unsigned long long StorageDrive::GetVolumeStartByte(unsigned long ID) const
+    {
+        return volumes.at(ID).GetStartByte();
+    }
+
+    unsigned long long StorageDrive::GetVolumeEndByte(unsigned long ID) const
+    {
+        return volumes.at(ID).GetEndByte();
+    }
+
+    std::string StorageDrive::GetVolumeName(unsigned long ID) const
+    {
+        return volumes.at(ID).GetName();
+    }
+    
+    std::string StorageDrive::GetVolumeFilesystem(unsigned long ID) const
+    {
+        return volumes.at(ID).GetFilesystem();
+    }
+
+    unsigned long long StorageDrive::GetVolumeSize(unsigned long ID) const
+    {
+        return volumes.at(ID).GetSize();
+    }
+
+    unsigned long long StorageDrive::GetVolumeUsedSpace(unsigned long ID) const
+    {
+        return volumes.at(ID).GetUsedSpace();
+    }
+
+    void StorageDrive::SetVolumeName(unsigned long ID, const std::string& name)
+    {
+        volumes.at(ID).SetName(name);
+    }
+
+    void StorageDrive::SetVolumeFSystem(unsigned long ID, const std::string& fSysName)
+    {
+        volumes.at(ID).SetFilesystem(fSysName);
+    }
+
+    void StorageDrive::SetVolumeUsedSpace(unsigned long ID, unsigned long long newSpace)
+    {
+        volumes.at(ID).SetUsedSpace(newSpace);
+    }
 }
