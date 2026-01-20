@@ -100,5 +100,10 @@ int main(void) {
     print_various_constructors_part();
     print_getters();
     print_prints();
+
+    s3l1::StudentData data("Ryazantsev", 24, 96.3);
+    const char* smth = data;
+    std::cout << data << std::endl;
+
     return 0;
 }

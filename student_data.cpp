@@ -2,43 +2,30 @@
 
 #include <cstddef>
 #include <cmath>
+#include <cstdio>
+#include <cstring>
 #include <iostream>
 
 namespace s3l1 {
-    const char* StudentData::get_last_name() {
+    const char* StudentData::get_last_name() const {
         return _last_name;
     }
 
-    int StudentData::get_age() {
+    int StudentData::get_age() const {
         return _age;
     }
 
-    float StudentData::get_average_score() {
+    float StudentData::get_average_score() const {
         return _average_score;
     }
 
     bool StudentData::set_last_name(const char* name) {
-        const char* size_ptr = name;
-        std::size_t size = 0;
-
         if (!_is_valid_name(name)) {
             return false;
         }
 
-        //получим размер+1
-        while (*(size_ptr++));
-        size = size_ptr-name;
+        _copy_string(&_last_name,name);
 
-        if (_last_name) delete _last_name;
-        _last_name = new char[size];
-        //скопируем имя
-        _memcpy(_last_name, name, size);
-        /*
-        явно скажем, что это конец строки
-        это необязательно(в источнике там уже 0),
-        но понять становится чуть попроще
-        */
-        _last_name[size-1] = 0;
         return true;
     }
 
@@ -50,78 +37,91 @@ namespace s3l1 {
 
     bool StudentData::set_average_score(float score) {
         if (!_is_valid_average(score)) return false;
-
+        _score_count = 1;
+        _score_sum = score;
         _average_score = score;
         return true;
     }
 
-    StudentData::StudentData(): _last_name(NULL), _age(0), _average_score(0.0) {}
+    StudentData::StudentData():
+            _last_name(NULL),
+            _age(0),
+            _average_score(0.0),
+            _score_count(0),
+            _score_sum(0.0),
+            _as_json(NULL)
+        {}
 
-    StudentData::StudentData(const char* last_name, int age, float average_score): _last_name(NULL) {
-        if (!set_last_name(last_name)) _last_name = NULL;
-        if (!set_age(age)) _age = 0;
-        if (!set_average_score(average_score)) _average_score = 0.0;
+    StudentData::StudentData(const char* last_name, int age, float average_score): StudentData() {
+        set_last_name(last_name);
+        set_age(age);
+        set_average_score(average_score);
     }
 
     StudentData::~StudentData() {
-        if (_last_name) {
-            delete _last_name;
+        _delete_name();
+        if (_as_json) {
+            delete[] _as_json;
+            _as_json = NULL;
         }
     }
 
-    StudentData::StudentData(const StudentData &sd) {
+    StudentData::StudentData(const StudentData &sd): StudentData(){
         _age = sd._age;
         _average_score = sd._average_score;
-        _last_name = NULL;
-        if (sd._last_name) {
-            set_last_name(sd._last_name);
-        }
+        _copy_string(&_last_name, sd._last_name);
+
+        _score_count = sd._score_count;
+        _score_sum = sd._score_sum;
+        _as_json = NULL;
     }
 
-    StudentData::StudentData(StudentData &&sd) {
+    StudentData::StudentData(StudentData &&sd): StudentData(){
         _age = sd._age;
         _average_score = sd._average_score;
         _last_name = sd._last_name;
         sd._last_name = NULL;
+        
+        _score_count = sd._score_count;
+        _score_sum = sd._score_sum;
     }
 
     StudentData& StudentData::operator=(const StudentData& sd) {
-        if (_last_name) delete _last_name;
-        _last_name = NULL;
         _age = sd._age;
         _average_score = sd._average_score;
-        if (sd._last_name) {
-            set_last_name(sd._last_name);
-        }
+        _copy_string(&_last_name, sd._last_name);
+        _score_count = sd._score_count;
+        _score_sum = sd._score_sum;
 
         return *this;
     }
 
     StudentData& StudentData::operator=(StudentData &&sd) {
-        if (_last_name) delete _last_name;
-        _last_name = NULL;
         _age = sd._age;
         _average_score = sd._average_score;
         _last_name = sd._last_name;
         sd._last_name = NULL;
 
+        _score_count = sd._score_count;
+        _score_sum = sd._score_sum;
+
         return *this;
     }
 
-    void StudentData::print_last_name() {
+    void StudentData::print_last_name() const {
         const char* to_print = _last_name ? _last_name : S3L1_STUDENT_DATA_DEFAULT_PRINT_NAME;
         std::cout << to_print << std::endl;
     }
 
-    void StudentData::print_age() {
+    void StudentData::print_age() const {
         std::cout << _age << std::endl;
     }
 
-    void StudentData::print_average_score() {
+    void StudentData::print_average_score() const{
         std::cout << _average_score << std::endl;
     }
 
-    void StudentData::print_data() {
+    void StudentData::print_data() const {
         std::cout << "Student: ";
         print_last_name();
         std::cout << "\tAge: ";
@@ -132,17 +132,17 @@ namespace s3l1 {
 
 
 
-    bool StudentData::_is_valid_name(const char* name) {
+    bool StudentData::_is_valid_name(const char* name) const {
         if (!name) {
             return false;
         }
-        return (*name != 0);
+        return (bool)(*name != 0);
     }
 
-    bool StudentData::_is_valid_age(const int age) {
+    bool StudentData::_is_valid_age(const int age) const {
         /*
         понятно, что студент вряд ли будет младенцем или старичком 100+,
-        но кто-то, например, может быть зачислен с рождения
+        но кто-то, например, может быть зачислен с рождения (как в гарри поттере, да)
         или числиться в базах до смерти,
         и мы не хотим вывалиться в ошибку по недосмотру
         */
@@ -155,17 +155,107 @@ namespace s3l1 {
     что оно больше нуля,
     и далее отдадим всё в руки того, кто будет дёргать за ручки нашего интерфейса.
     */
-    bool StudentData::_is_valid_average(const float average) {
+    bool StudentData::_is_valid_average(const float average) const {
         if (std::isnan(average) || std::isinf(average)) {
             return false;
         }
         return average >= 0.0;
     }
 
+    void StudentData::_copy_string(char** dest, const char* src) {
+        const char* size_ptr = src;
+        std::size_t size = 0;
+
+        if (!dest) return;
+
+        if (*dest) {
+            delete [] dest;
+            *dest = NULL;
+        }
+
+        if (src) {
+            while (*(size_ptr++));
+            size = size_ptr-src;
+
+            *dest = new char[size];
+            _memcpy(*dest, src, size);
+            (*dest)[size-1] = 0;
+        }
+    }
+
+    void StudentData::_delete_name() {
+        if (_last_name) {
+            delete[] _last_name;
+            _last_name = NULL;
+        }
+    }
+
     void StudentData::_memcpy(char* dest, const char* src, std::size_t size) {
         for (std::size_t i{0}; i < size; i++) {
             dest[i] = src[i];
         }
+    }
+
+
+    StudentData StudentData::operator++() {
+        StudentData temp = *this;
+        _age++;
+        return temp;
+    }
+
+    StudentData& StudentData::operator++(int) {
+        _age++;
+        return *this;
+    }
+
+    StudentData& StudentData::operator+(float score) {
+        _score_count+=1;
+        _score_sum+=score;
+        _average_score = _score_sum/(float)_score_count;
+
+        return *this;
+    }
+
+    StudentData::operator const char *() {
+        _update_json();
+        return _as_json;
+    }
+
+    void StudentData::_update_json() {
+        char new_json[BUFSIZ] = {0};
+        /*
+        Делаем все прошлые поинтеры инвалидными, чтобы жизнь мёдом не казалась тем кто копировал бездумно.
+        */
+        if (_as_json) {
+            delete[] _as_json;
+            _as_json = NULL;
+        }
+
+        memset(new_json, 0, BUFSIZ);
+
+        std::size_t new_size = snprintf(new_json, BUFSIZ-1,
+            "{\"_last_name\": \"%s\", \"_age\":\"%d\", \"_average_score\":\"%.2f\", \"_score_sum\":\"%.2f\", \"_score_count\":\"%ld\"}",
+            _last_name ? _last_name : S3L1_STUDENT_DATA_DEFAULT_PRINT_NAME,
+            _age,
+            _average_score,
+            _score_sum,
+            _score_count
+        );
+        
+        _as_json = new char[new_size+1];
+        _memcpy(_as_json, new_json, new_size+1);
+    }
+
+    StudentData& operator-(StudentData& lv, float score) {
+        /*
+        благодаря этой штучке мы не улетим в отрицательные значения
+        если на фронте кто-то будет усердно вычитать
+        */
+        float subtract = score ? score <= lv._average_score : lv._average_score;
+        lv._average_score -= subtract;
+        lv._score_sum = lv._average_score*lv._score_count;
+
+        return lv;
     }
 }
 
