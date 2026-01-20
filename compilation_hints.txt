@@ -1,0 +1,5 @@
+compiled with gcc.
+
+use 'make' in order to compile and test
+use 'make main' in order to just compile binary
+use 'make clean' to cleanup binaries compiled
