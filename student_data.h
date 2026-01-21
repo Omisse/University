@@ -14,7 +14,6 @@
 
 
 #include <cstddef>
-#include <initializer_list>
 #include <ostream>
 
 #define S3L1_STUDENT_DATA_DEFAULT_PRINT_NAME "NULL"
