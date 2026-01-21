@@ -6,7 +6,9 @@ main:
 
 clean:
 	@ echo Removing all that we were building for so long...
-	@ rm test
+	@ rm test &2>/dev/null
+	@ rm data.bin &2>/dev/null
+	@ rm data.txt &2>/dev/null
 	@ echo All built files commited sudoku.
 
 valgrind: main

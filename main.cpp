@@ -1,4 +1,6 @@
 #include "student_data.h"
+#include <fstream>
+#include <ios>
 #include <iostream>
 
 void print_title(const char* title) {
@@ -128,7 +130,7 @@ void print_move_assignment() {
     std::cout << std::endl << "s1 name pointer: " << buff << std::endl;
     sprintf(buff, "%p", s2.get_last_name());
     std::cout << "s2 name pointer: " << buff << std::endl;
-    
+
     std::cout << "s1 = std::move(s2)" << std::endl;
     s1 = std::move(s2);
     std::cout << "s1:" << std::endl;
@@ -245,6 +247,48 @@ void print_conversion() {
     print_closing("Implicit conversion end");
 }
 
+void print_files() {
+    print_title("Outputting to files: data.txt, data.bin");
+    s3l1::StudentData student("Ryazantsev", 24, 96.3);
+    std::ofstream text("data.txt", std::ios::out);
+    if (!text) {
+        std::cerr << "Cannot open file \"data.txt\" in write mode" << std::endl;
+    }
+    text << student;
+    text.close();
+    std::ofstream bin("data.bin", std::ofstream::out | std::ofstream::binary);
+    if (bin) {
+        bin << student.binary_mode(true);
+        bin.close();    
+    } else {
+        std::cerr << "Cannot open file \"data.bin\" in write mode" << std::endl;
+    }
+    print_closing("Outputting to files end");
+}
+
+void load_from_binary() {
+    print_title("Loading from binary: data.bin");
+    s3l1::StudentData new_student{};
+    std::cout << "Before load: " << std::endl;
+    new_student.print_data();
+    std::ifstream bin("data.bin", std::ifstream::in | std::ifstream::binary);
+    if (bin) {
+        /*
+        он может выбросить тут эксепшн аж из ofstream.read(),
+        но эта ситуация произойдёт только если в самом ofstream
+        __forced_unwind == true, чего у нас нет, а если бы было -
+        ну, судя по названию, правильно было бы чтоб всё сломалось.
+        */
+        bin >> new_student;
+        std::cout << "After load: " << std::endl;
+        new_student.print_data();
+    } else {
+        std::cerr << "Cannot open file \"data.bin\" in read mode. Does it exist?" << std::endl;
+    }
+    
+    print_closing("Loading from binary end");
+}
+
 int main(void) {
     print_simple_part();
     print_various_constructors_part();
@@ -255,5 +299,7 @@ int main(void) {
     print_addition();
     print_subtraction();
     print_conversion();
+    print_files();
+    load_from_binary();
     return 0;
 }

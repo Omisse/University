@@ -5,6 +5,7 @@
 #include <cstdio>
 #include <cstring>
 #include <iostream>
+#include <fstream>
 
 namespace s3l1 {
     const char* StudentData::get_last_name() const {
@@ -49,7 +50,8 @@ namespace s3l1 {
             _average_score(0.0),
             _score_count(0),
             _score_sum(0.0),
-            _as_json(NULL)
+            _as_json(NULL),
+            _ofstream_binary(false)
         {}
 
     StudentData::StudentData(const char* last_name, int age, float average_score): StudentData() {
@@ -179,9 +181,6 @@ namespace s3l1 {
     }
 
     void StudentData::_copy_string(char** dest, const char* src) {
-        const char* size_ptr = src;
-        std::size_t size = 0;
-
         if (!dest) return;
         if (*dest == src) return;
 
@@ -191,9 +190,7 @@ namespace s3l1 {
         }
 
         if (src) {
-            while (*(size_ptr++));
-            size = size_ptr-src;
-
+            std::size_t size = _get_true_size(src);
             *dest = new char[size];
             _memcpy(*dest, src, size);
             (*dest)[size-1] = 0;
@@ -268,6 +265,74 @@ namespace s3l1 {
         
         _as_json = new char[new_size+1];
         _memcpy(_as_json, new_json, new_size+1);
+    }
+
+    std::size_t StudentData::_get_true_size(const char* str) {
+        if (!str) return 0;
+
+        const char* start = str;
+        while (*(str++));
+        return str-start;
+    }
+
+    StudentData& StudentData::binary_mode(bool is_binary) {
+        _ofstream_binary = is_binary;
+        return *this;
+    }
+
+    std::ofstream& operator<<(std::ofstream& out, StudentData& data) {
+        std::cout << data._ofstream_binary;
+        if (data._ofstream_binary) {
+            std::size_t name_size = StudentData::_get_true_size(data._last_name);
+            struct save_template {
+                int age;
+                float average;
+                std::size_t score_count;
+                float score_sum;
+                std::size_t name_size;
+            } static_data {
+                data._age,
+                data._average_score,
+                data._score_count,
+                data._score_sum, 
+                name_size,
+            };
+            out.write((char*)&static_data, sizeof(static_data));
+            if (name_size > 1) {
+                out.write(data._last_name, name_size);
+            }
+        } else {
+            //Если тут не привести тип, мы в бесконечную рекурсию упадём.
+            out << (const char*) data;
+        }
+        
+        return out;
+    }
+
+    std::ifstream& operator>>(std::ifstream& in, StudentData& data) {
+        struct save_template {
+            int age;
+            float average;
+            std::size_t score_count;
+            float score_sum;
+            std::size_t name_size;
+        } static_data = {};
+        char* buffer = NULL;
+
+        in.read((char*)&static_data, sizeof(static_data));
+        if (static_data.name_size > 1) {
+            buffer = new char[static_data.name_size];
+            in.read(buffer, static_data.name_size);
+            buffer[static_data.name_size-1] = 0;
+        }
+
+        data = StudentData(buffer, static_data.age, static_data.average);
+        data._score_count = static_data.score_count;
+        data._score_sum = static_data.score_sum;
+        if (buffer) {
+            delete [] buffer;
+        }
+        return in;
     }
 }
 
