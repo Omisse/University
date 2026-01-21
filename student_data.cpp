@@ -179,9 +179,6 @@ namespace s3l1 {
     }
 
     void StudentData::_copy_string(char** dest, const char* src) {
-        const char* size_ptr = src;
-        std::size_t size = 0;
-
         if (!dest) return;
         if (*dest == src) return;
 
@@ -191,18 +188,11 @@ namespace s3l1 {
         }
 
         if (src) {
-            while (*(size_ptr++));
-            size = size_ptr-src;
+            std::size_t size = _get_true_size(src);
 
             *dest = new char[size];
-            _memcpy(*dest, src, size);
+            memcpy(*dest, src, size);
             (*dest)[size-1] = 0;
-        }
-    }
-
-    void StudentData::_memcpy(char* dest, const char* src, std::size_t size) {
-        for (std::size_t i{0}; i < size; i++) {
-            dest[i] = src[i];
         }
     }
 
@@ -267,7 +257,15 @@ namespace s3l1 {
         );
         
         _as_json = new char[new_size+1];
-        _memcpy(_as_json, new_json, new_size+1);
+        memcpy(_as_json, new_json, new_size+1);
+    }
+
+    std::size_t StudentData::_get_true_size(const char* str) {
+        if (!str) return 0;
+
+        const char* start = str;
+        while (*(str++));
+        return str-start;
     }
 }
 
