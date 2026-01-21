@@ -32,11 +32,11 @@ namespace s3l1 {
             StudentData& operator=(const StudentData& sd);
             StudentData& operator=(StudentData &&sd);
 
-            StudentData operator++();
-            StudentData& operator++(int);
-            StudentData& operator+(float score);
+            StudentData& operator++();
+            StudentData operator++(int);
+            StudentData operator+(float score);
             operator const char*();
-            friend StudentData& operator-(StudentData& data, float score);
+            friend StudentData operator-(StudentData& data, float score);
             
             const char* get_last_name() const;
             int get_age() const;
@@ -72,7 +72,6 @@ namespace s3l1 {
 
             void _memcpy(char* dest, const char* src, std::size_t size);
             void _copy_string(char** dest,const char* src);
-            void _delete_name();
             void _update_json();
     };
 }
