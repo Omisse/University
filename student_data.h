@@ -79,7 +79,6 @@ namespace s3l1 {
             bool _is_valid_age(const int age) const;
             bool _is_valid_average(const float average) const;
 
-            void _memcpy(char* dest, const char* src, std::size_t size);
             void _copy_string(char** dest,const char* src);
             void _update_json();
             static std::size_t _get_true_size(const char* str);
