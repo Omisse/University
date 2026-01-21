@@ -16,8 +16,6 @@
 #include <cstddef>
 #include <ostream>
 
-#define S3L1_STUDENT_DATA_DEFAULT_PRINT_NAME "NULL"
-
 namespace s3l1 {
     class StudentData {
         public:
@@ -51,9 +49,8 @@ namespace s3l1 {
             void print_data() const;
 
             StudentData& binary_mode(bool is_binary);
-
-
-        private:
+        
+        protected:
             char* _last_name;
             int _age;
             float _average_score;
@@ -61,27 +58,14 @@ namespace s3l1 {
             float _score_sum;
             std::size_t _score_count;
 
-            /*
-                по сути, это временное хранилище нашего json из приведения типов.
-                сделано оно для того, чтобы я мог принтить его достаточно спокойно
-                но придётся держать в уме, что поинтеры на неё удалятся после деструктора,
-                и если кто вздумает хранить приведённый тип, то он расстроится
-
-                к третьей лабе появилась мысль хранить его внутри функции статикой,
-                не знаю, хорошая она или нет
-            */
-            char* _as_json;
-
             bool _ofstream_binary;
 
-            bool _is_valid_name(const char* name) const;
-            bool _is_valid_age(const int age) const;
-            bool _is_valid_average(const float average) const;
-
-            void _copy_string(char** dest,const char* src);
-            void _update_json();
+            const char _k_default_name[5] = "NULL";
+            static void _copy_string(char** dest, const char* src);
             static std::size_t _get_true_size(const char* str);
-        
+            static bool _is_valid_name(const char* name);
+            static bool _is_valid_age(const int age);
+            static bool _is_valid_average(const float average);        
     };
 }
 

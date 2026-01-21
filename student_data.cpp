@@ -50,7 +50,6 @@ namespace s3l1 {
             _average_score(0.0),
             _score_count(0),
             _score_sum(0.0),
-            _as_json(NULL),
             _ofstream_binary(false)
         {}
 
@@ -65,10 +64,6 @@ namespace s3l1 {
             delete[] _last_name;
             _last_name = NULL;
         }
-        if (_as_json) {
-            delete[] _as_json;
-            _as_json = NULL;
-        }
     }
 
     StudentData::StudentData(const StudentData &sd): StudentData() {
@@ -78,7 +73,6 @@ namespace s3l1 {
 
         _score_count = sd._score_count;
         _score_sum = sd._score_sum;
-        _as_json = NULL;
     }
 
     StudentData::StudentData(StudentData &&sd): StudentData() {
@@ -99,11 +93,6 @@ namespace s3l1 {
         _copy_string(&_last_name, sd._last_name);
         _score_count = sd._score_count;
         _score_sum = sd._score_sum;
-
-        if (_as_json) {
-            delete [] _as_json;
-            _as_json = NULL;
-        }
 
         return *this;
     }
@@ -126,7 +115,7 @@ namespace s3l1 {
     }
 
     void StudentData::print_last_name() const {
-        const char* to_print = _last_name ? _last_name : S3L1_STUDENT_DATA_DEFAULT_PRINT_NAME;
+        const char* to_print = _last_name ? _last_name : _k_default_name;
         std::cout << to_print << std::endl;
     }
 
@@ -150,14 +139,14 @@ namespace s3l1 {
 
 
 
-    bool StudentData::_is_valid_name(const char* name) const {
+    bool StudentData::_is_valid_name(const char* name) {
         if (!name) {
             return false;
         }
         return (bool)(*name != 0);
     }
 
-    bool StudentData::_is_valid_age(const int age) const {
+    bool StudentData::_is_valid_age(const int age) {
         /*
         понятно, что студент вряд ли будет младенцем или старичком 100+,
         но кто-то, например, может быть зачислен с рождения (как в гарри поттере, да)
@@ -173,7 +162,7 @@ namespace s3l1 {
     что оно больше нуля,
     и далее отдадим всё в руки того, кто будет дёргать за ручки нашего интерфейса.
     */
-    bool StudentData::_is_valid_average(const float average) const {
+    bool StudentData::_is_valid_average(const float average) {
         if (std::isnan(average) || std::isinf(average)) {
             return false;
         }
@@ -231,33 +220,18 @@ namespace s3l1 {
     }
 
     StudentData::operator const char *() {
-        _update_json();
-        return _as_json;
-    }
-
-    void StudentData::_update_json() {
-        char new_json[BUFSIZ] = {0};
-        /*
-        Делаем все прошлые поинтеры инвалидными, чтобы жизнь мёдом не казалась тем кто копировал бездумно.
-        */
-        if (_as_json) {
-            delete[] _as_json;
-            _as_json = NULL;
-        }
-
-        memset(new_json, 0, BUFSIZ);
-
-        std::size_t new_size = snprintf(new_json, BUFSIZ-1,
+        static char buffer[BUFSIZ] = {};
+        memset(buffer, 0, BUFSIZ);
+        snprintf(buffer, BUFSIZ-1,
             "{\"_last_name\": \"%s\", \"_age\":\"%d\", \"_average_score\":\"%.2f\", \"_score_sum\":\"%.2f\", \"_score_count\":\"%ld\"}",
-            _last_name ? _last_name : S3L1_STUDENT_DATA_DEFAULT_PRINT_NAME,
+            _last_name ? _last_name : _k_default_name,
             _age,
             _average_score,
             _score_sum,
             _score_count
         );
-        
-        _as_json = new char[new_size+1];
-        memcpy(_as_json, new_json, new_size+1);
+
+        return buffer;
     }
 
     std::size_t StudentData::_get_true_size(const char* str) {
