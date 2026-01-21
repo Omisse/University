@@ -16,7 +16,7 @@
 #include <cstddef>
 #include <ostream>
 
-namespace s3l1 {
+namespace prog_s3 {
     class StudentData {
         public:
             StudentData();
@@ -31,6 +31,7 @@ namespace s3l1 {
             StudentData operator++(int);
             StudentData operator+(float score);
             operator const char*();
+
             friend StudentData operator-(StudentData& data, float score);
 
             friend std::ofstream& operator<<(std::ofstream& out, StudentData& data);
@@ -46,7 +47,9 @@ namespace s3l1 {
             void print_last_name() const;
             void print_age() const;
             void print_average_score() const;
-            void print_data() const;
+            virtual void print_data() const;
+
+            virtual const char* get_json_string() const;
 
             StudentData& binary_mode(bool is_binary);
         
@@ -65,7 +68,12 @@ namespace s3l1 {
             static std::size_t _get_true_size(const char* str);
             static bool _is_valid_name(const char* name);
             static bool _is_valid_age(const int age);
-            static bool _is_valid_average(const float average);        
+            static bool _is_valid_average(const float average);
+
+            virtual void _save_to_file(std::ofstream& out) const;
+            virtual void _load_from_file(std::ifstream& in);
+            virtual void _save_binary(std::ofstream& out) const;
+            virtual void _load_binary(std::ifstream& in);
     };
 }
 

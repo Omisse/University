@@ -7,7 +7,7 @@
 #include <iostream>
 #include <fstream>
 
-namespace s3l1 {
+namespace prog_s3 {
     const char* StudentData::get_last_name() const {
         return _last_name;
     }
@@ -163,9 +163,7 @@ namespace s3l1 {
     и далее отдадим всё в руки того, кто будет дёргать за ручки нашего интерфейса.
     */
     bool StudentData::_is_valid_average(const float average) {
-        if (std::isnan(average) || std::isinf(average)) {
-            return false;
-        }
+        if (!std::isfinite(average)) return false;
         return average >= 0.0;
     }
 
@@ -220,6 +218,10 @@ namespace s3l1 {
     }
 
     StudentData::operator const char *() {
+        return get_json_string();
+    }
+
+    const char * StudentData::get_json_string() const {
         static char buffer[BUFSIZ] = {};
         memset(buffer, 0, BUFSIZ);
         snprintf(buffer, BUFSIZ-1,
@@ -230,7 +232,6 @@ namespace s3l1 {
             _score_sum,
             _score_count
         );
-
         return buffer;
     }
 
@@ -248,35 +249,59 @@ namespace s3l1 {
     }
 
     std::ofstream& operator<<(std::ofstream& out, StudentData& data) {
-        std::cout << data._ofstream_binary;
-        if (data._ofstream_binary) {
-            std::size_t name_size = StudentData::_get_true_size(data._last_name);
-            struct save_template {
-                int age;
-                float average;
-                std::size_t score_count;
-                float score_sum;
-                std::size_t name_size;
-            } static_data {
-                data._age,
-                data._average_score,
-                data._score_count,
-                data._score_sum, 
-                name_size,
-            };
-            out.write((char*)&static_data, sizeof(static_data));
-            if (name_size > 1) {
-                out.write(data._last_name, name_size);
-            }
-        } else {
-            //Если тут не привести тип, мы в бесконечную рекурсию упадём.
-            out << (const char*) data;
-        }
-        
+        data._save_to_file(out);
         return out;
     }
 
     std::ifstream& operator>>(std::ifstream& in, StudentData& data) {
+        data._load_from_file(in);
+        return in;
+    }
+
+    void StudentData::_save_to_file(std::ofstream& out) const {
+        if (_ofstream_binary) {
+            _save_binary(out);
+        } else {
+            out << get_json_string();
+        }
+    }
+
+    void StudentData::_load_from_file(std::ifstream& in) {
+        _load_binary(in);
+    }
+    
+
+    void StudentData::_save_binary(std::ofstream& out) const {
+        std::size_t name_size = StudentData::_get_true_size(_last_name);
+        struct save_template {
+            int age;
+            float average;
+            std::size_t score_count;
+            float score_sum;
+            std::size_t name_size;
+        } static_data = {};
+        /*
+        тут разделили, потому что полезной нагрузки у нас на 28 байт,
+        а вот структура получится 32 (выравнивание 8 байт)
+        Если игнорировать, получим 4 байта всего что угодно
+        между score_sum и name_size, чего не хочется.
+        Инициализируем сначала дефолтным конструктором, он забьёт всё нулями
+        Потом уже можно.
+        */
+        static_data = {
+            _age,
+            _average_score,
+            _score_count,
+            _score_sum, 
+            name_size,
+        };
+        out.write((char*)(&static_data), sizeof(static_data));
+        if (name_size > 1) {
+            out.write(_last_name, name_size);
+        }
+    }
+
+    void StudentData::_load_binary(std::ifstream& in) {
         struct save_template {
             int age;
             float average;
@@ -287,19 +312,24 @@ namespace s3l1 {
         char* buffer = NULL;
 
         in.read((char*)&static_data, sizeof(static_data));
-        if (static_data.name_size > 1) {
+        if (in.good() && static_data.name_size > 1) {
             buffer = new char[static_data.name_size];
             in.read(buffer, static_data.name_size);
             buffer[static_data.name_size-1] = 0;
         }
+        if (in.good()) {
+            if (_last_name) delete [] _last_name;
+            _last_name = NULL;
+            _age = static_data.age;
+            _average_score = static_data.average;
+            _score_sum = static_data.score_sum;
+            _score_count = static_data.score_count;
+        }
 
-        data = StudentData(buffer, static_data.age, static_data.average);
-        data._score_count = static_data.score_count;
-        data._score_sum = static_data.score_sum;
         if (buffer) {
+            if (in.good()) _copy_string(&_last_name, buffer);
             delete [] buffer;
         }
-        return in;
     }
 }
 
