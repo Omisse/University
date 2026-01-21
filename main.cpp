@@ -250,11 +250,13 @@ void print_files() {
     print_title("Outputting to files: data.txt, data.bin");
     s3l1::StudentData student("Ryazantsev", 24, 96.3);
     std::ofstream text("data.txt", std::ios::out);
-    if (!text) {
+    if (text) {
+        text << student;
+        text.close();
+    } else {
         std::cerr << "Cannot open file \"data.txt\" in write mode" << std::endl;
     }
-    text << student;
-    text.close();
+    
     std::ofstream bin("data.bin", std::ofstream::out | std::ofstream::binary);
     if (bin) {
         bin << student.binary_mode(true);
