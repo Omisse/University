@@ -1,0 +1,1 @@
+{"_last_name": "Ryazantsev", "_age":"24", "_average_score":"96.30", "_score_sum":"96.30", "_score_count":"1"}
