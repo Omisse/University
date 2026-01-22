@@ -157,8 +157,10 @@ class list {
 
         list(list &&l) { //move
             clear();
-            header_ = std::move(l.header_);
-            size_ = std::move(l.size_);
+            while (!l.empty()) {
+                push_back(*(l.begin()));
+                l.erase(l.begin());
+            }
         }
 
         virtual ~list() { this->clear(); } //destructor
@@ -166,15 +168,31 @@ class list {
         list& operator=(list &&l) { //assignment move
             if (this != &l) {
                 clear();
-                header_ = std::move(l.header_);
-                size_ = std::move(l.size_);
+                while (!l.empty()) {
+                    push_back(*(l.begin()));
+                    l.erase(l.begin());
+                }
             }
             return *this;
         }
 
             //access methods
-        const_reference front() { return begin().node_->value; }
-        const_reference back() { return end().node_->previous->value; }
+        const_reference front() { 
+            if (!empty()) {
+                return begin().node_->value;
+            } else {
+                throw std::out_of_range("the list is empty");
+            }
+            
+        }
+        const_reference back() {
+            if (!empty()) {
+                return end().node_->previous->value;
+            } else {
+                throw std::out_of_range("the list is empty");
+            }
+        }
+
         const_reference at(size_type pos) {
             if (empty()) throw std::out_of_range("the list is empty");
             return get_offset_value(pos%size_);
