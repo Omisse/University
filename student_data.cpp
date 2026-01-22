@@ -283,7 +283,11 @@ namespace s3l1 {
                 std::size_t score_count;
                 float score_sum;
                 std::size_t name_size;
-            } static_data {
+            } static_data = {}
+            /*
+            делаем именно так чтобы посередине не было неинициализированных значений
+            */
+            static_data = {
                 data._age,
                 data._average_score,
                 data._score_count,
