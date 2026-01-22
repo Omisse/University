@@ -1,5 +1,5 @@
-#ifndef S3L7_LIST_TPP
-#define S3L7_LIST_TPP
+#ifndef S3L7_LIST_HPP
+#define S3L7_LIST_HPP
 
 #include "list_node.hpp"
 
@@ -294,4 +294,4 @@ class list {
 
 } //namespace prog_s3
 
-#endif //prog_s3_LIST_TPP
+#endif //S3L7_LIST_HPP

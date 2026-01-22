@@ -1,5 +1,5 @@
-#ifndef S3L7_NODE_TPP
-#define S3L7_NODE_TPP
+#ifndef S3L7_NODE_HPP
+#define S3L7_NODE_HPP
 
 namespace prog_s3 {
     template<typename T>    
@@ -18,4 +18,4 @@ namespace prog_s3 {
 }
 
 
-#endif //S3L7_NODE_TPP
+#endif //S3L7_NODE_HPP
