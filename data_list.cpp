@@ -6,6 +6,7 @@
 #include <cstddef>
 #include <cstring>
 #include <iostream>
+#include <stdexcept>
 
 namespace prog_s3 {
     DataList::DataList(): _root(NULL), _size(0) {};
@@ -115,7 +116,7 @@ namespace prog_s3 {
     }
 
     bool DataList::remove_at(std::size_t pos) {
-        if (is_empty() || pos >= _size) return false;
+        if (is_empty() || pos >= _size) throw std::out_of_range("Error: pos >= _size");
         DataNode* delptr = _root;
         DataNode* prev = NULL;
         for(std::size_t i = 0; i < pos; i++) {
@@ -127,9 +128,9 @@ namespace prog_s3 {
     }
 
     StudentData* DataList::get(std::size_t pos) {
-        if (is_empty() || pos >= _size) return NULL;
+        if (is_empty() || pos >= _size) throw std::out_of_range("Error: pos >= _size");
         DataNode* ptr = _root;
-        for (std::size_t i = 0; i < pos; i++) {
+        for (std::size_t i = 0; i < pos && ptr; i++) {
             ptr = ptr->next;
         }
         StudentData* retval = ptr ? ptr->value : NULL;
@@ -137,7 +138,7 @@ namespace prog_s3 {
     }
 
     StudentData* DataList::find(const char* name, std::size_t from) {
-        if (is_empty() || from >= _size) return NULL;
+        if (is_empty() || from >= _size) throw std::out_of_range("Error: from >= _size");
         StudentData* retval = NULL;
         DataNode* ptr = _root;
         for (std::size_t i = from; i < _size && !retval; i++) {
@@ -150,7 +151,7 @@ namespace prog_s3 {
     }
 
     std::size_t DataList::count(const char* name, std::size_t from) {
-        if (is_empty() || from >= _size) return 0;
+        if (is_empty() || from >= _size) throw std::out_of_range("Error: from >= _size");
         std::size_t amount = 0;
         DataNode* ptr = _root;
         for (std::size_t i = from; i < _size; i++) {
@@ -169,7 +170,8 @@ namespace prog_s3 {
     }
 
     bool DataList::_insert_ptr(StudentData* value, std::size_t pos) {
-        if (pos>_size || !value) return false;
+        if (pos > _size) throw std::out_of_range("Error: pos>_size");
+        if (!value) throw std::invalid_argument("value == NULL");
         DataNode* ptr = _root;
         DataNode* prev = NULL;
         for (std::size_t i = 0; i < pos; i++) {
