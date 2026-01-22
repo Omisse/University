@@ -1,6 +1,7 @@
 #include "student_data.h"
 #include "student_data_budget.h"
 #include "student_data_debt.h"
+#include "data_list.h"
 
 #include <fstream>
 #include <iostream>
@@ -400,6 +401,40 @@ void print_derived_virtuals() {
     print_virtuals_budget();
 }
 
+void print_polymorphic() {
+    print_title("Simple StudentData container");
+    prog_s3::DataList my_list{};
+    std::cout << "List contents: " << std::endl;
+    prog_s3::StudentData data_simple("SData", 33, 3.3);
+    prog_s3::StudentDataDebt data_debt("SDataDebt", 66, 66.67, 66);
+    prog_s3::StudentDataBudget data_budget("SDataBudget", 100, 99.99, 9999.99);
+    std::cout << "Expected pos: 0 ";
+    data_simple.print_data();
+    std::cout << "Expected pos: 1 ";
+    data_debt.print_data();
+    std::cout << "Expected pos: 2 ";
+    data_budget.print_data();
+    /*
+    push_front просто будет для процессора дешевле,
+    так что сделаю им, но в обратном порядке
+    */
+    my_list.push_front(data_budget);
+    my_list.push_front(data_debt);
+    my_list.push_front(data_simple);
+    std::cout << "List structure: " << std::endl;
+    my_list.print_structure();
+    
+    print_title("Polymorphic behaviour example");
+    
+    std::cout << "my_list.get(0)->print_data(): " << std::endl;
+    my_list.get(0)->print_data();
+    std::cout << "my_list.get(1)->print_data(): " << std::endl;
+    my_list.get(1)->print_data();
+    std::cout << "my_list.get(2)->print_data(): " << std::endl;
+    my_list.get(2)->print_data();
+    print_closing("Polymorphism example end");
+    print_closing("Simple StudentData container end");
+}
 
 
 int main(void) {
@@ -415,5 +450,6 @@ int main(void) {
     print_file_io();
     print_derived_constructors();
     print_derived_virtuals();
+    print_polymorphic();
     return 0;
 }

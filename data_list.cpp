@@ -5,6 +5,7 @@
 
 #include <cstddef>
 #include <cstring>
+#include <iostream>
 
 namespace prog_s3 {
     DataList::DataList(): _root(NULL), _size(0) {};
@@ -21,11 +22,8 @@ namespace prog_s3 {
     }
 
     void DataList::clear() {
-        while (_root) {
-            DataNode* next = _root->next;
-            delete _root;
-            _root = next;
-        }
+        while (pop_front());
+        _size = 0;
         _root = NULL;
     }
 
@@ -214,6 +212,20 @@ namespace prog_s3 {
         : value(value), next(next) {};
     DataList::DataNode::~DataNode() {
         if (value) delete value;
+    }
+
+    void DataList::print_structure() {
+        DataNode* ptr = _root;
+        std::size_t count = 0;
+        //уходим от стандарта, на msvc может и сломаться
+        while (ptr) {
+            for (std::size_t i = 0; i < count*2; i++) {
+                std::cout << " ";
+            }
+            std::cout << count << ": " << typeid(ptr->value).name() << "(" << typeid(*(ptr->value)).name() << ")" << std::endl;
+            ptr = ptr->next;
+            count++;
+        }        
     }
 }
 

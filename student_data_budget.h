@@ -11,6 +11,7 @@ namespace prog_s3 {
         public:
             StudentDataBudget();
             StudentDataBudget(const char* last_name, int age = 0, float average = 0.0, float grant = 0.0);
+            virtual ~StudentDataBudget() = default;
 
             bool set_grant(float new_grant);
             void print_grant() const;

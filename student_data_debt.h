@@ -11,6 +11,7 @@ namespace prog_s3 {
         public:
             StudentDataDebt();
             StudentDataDebt(const char* last_name, int age = 0, float average = 0.0, int debts = 0);
+            virtual ~StudentDataDebt() = default;
 
             bool set_debts(int count);
             void close_debt(int amount = 1);

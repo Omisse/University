@@ -2,7 +2,7 @@ all: main
 	./test
 
 main:
-	gcc main.cpp student_data.cpp student_data_budget.cpp student_data_debt.cpp -lstdc++ -o test
+	gcc main.cpp student_data.cpp student_data_budget.cpp student_data_debt.cpp data_list.cpp -lstdc++ -o test
 
 clean:
 	@ echo Removing all that we were building for so long...

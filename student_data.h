@@ -21,7 +21,7 @@ namespace prog_s3 {
         public:
             StudentData();
             StudentData(const char* last_name, int age = 0, float average_score = 0.0);
-            ~StudentData();
+            virtual ~StudentData();
             StudentData(const StudentData &sd);
             StudentData(StudentData &&sd);
             StudentData& operator=(const StudentData& sd);
