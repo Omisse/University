@@ -27,4 +27,4 @@ namespace prog_s3 {
     };//class StudentDataBudget
 } //namespace prog_s3
 
-#endif //S3L4_STUDENT_BUDGET_H
+#endif //S3L4_STUDENT_DATA_BUDGET_H
