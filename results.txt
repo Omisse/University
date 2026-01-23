@@ -1,0 +1,72 @@
+gcc main.cpp student_data.cpp -lstdc++ -o test
+./test
+|\/| Simple constructor |\/|
+Student: NULL
+        Age: 0
+        Average Score: 0
+|^^| Simple constructor end |^^|
+|\/| Setters example (valid) |\/|
+        SET: Last name: Zaharov
+        SET: Age: 33
+        SET: Average score: 68.8
+
+Student: Zaharov
+        Age: 33
+        Average Score: 68.8
+|^^| Setters example (valid) end |^^|
+|\/| Setters example (invalid) |\/|
+        SET: Last name: ""
+        SET: Age: -6
+        SET: Average score: -88.5
+
+Student: Zaharov
+        Age: 33
+        Average Score: 68.8
+|^^| Setters example (invalid) end |^^|
+|\/| Full constructor |\/|
+Student: Ryazantsev
+        Age: 24
+        Average Score: 96.3
+|^^| Full constructor end |^^|
+|\/| Full constructor (invalid) |\/|
+Student: NULL
+        Age: 0
+        Average Score: 0
+|^^| Full constructor (invalid) end |^^|
+|\/| Copy constructor (Ryazantsev to new) |\/|
+Original initialized out of scope and is deleted by this point
+Student: Ryazantsev
+        Age: 24
+        Average Score: 96.3
+|^^| Copy constructor end |^^|
+|\/| Move constructor (From Ryazantsev) |\/|
+Destination: 
+Student: Ryazantsev
+        Age: 24
+        Average Score: 96.3
+Source: (will be deleted after function's return)
+Student: NULL
+        Age: 24
+        Average Score: 96.3
+|^^| Move constructor end |^^|
+|\/| Getters example |\/|
+Student: Ryazantsev
+        Age: 24
+        Average Score: 96.3
+
+student.get_last_name(): Ryazantsev
+student.get_age(): 24
+student.get_average_score(): 96.3
+|^^| Getters example end |^^|
+|\/| Print functions example |\/|
+student.print_data():
+Student: Ryazantsev
+        Age: 24
+        Average Score: 96.3
+student.print_last_name():
+Ryazantsev
+student.print_age():
+24
+student.print_average_score():
+96.3
+|^^| Print functions end |^^|
