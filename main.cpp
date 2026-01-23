@@ -176,6 +176,6 @@ void test_up_to(std::size_t max_amount) {
 
 
 int main(void) {
-    test_up_to(1e7);
+    test_up_to(1e8);
     return 0;
 }

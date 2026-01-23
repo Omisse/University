@@ -1,0 +1,132 @@
+gcc -lstdc++ --std=c++11 main.cpp -o test
+./test
+|\/| Queue push test |\/|
+Time passed for 1 elements: 1466ns == 1.466e-06sec
+|^^| Queue push test done. |^^|
+|\/| Queue remove test |\/|
+Time passed for 1 elements: 1537ns == 1.537e-06sec
+|^^| Queue remove test done. |^^|
+|\/| Queue push test |\/|
+Time passed for 10 elements: 1607ns == 1.607e-06sec
+|^^| Queue push test done. |^^|
+|\/| Queue remove test |\/|
+Time passed for 10 elements: 1746ns == 1.746e-06sec
+|^^| Queue remove test done. |^^|
+|\/| Queue push test |\/|
+Time passed for 100 elements: 3981ns == 3.981e-06sec
+|^^| Queue push test done. |^^|
+|\/| Queue remove test |\/|
+Time passed for 100 elements: 4750ns == 4.75e-06sec
+|^^| Queue remove test done. |^^|
+|\/| Queue push test |\/|
+Time passed for 1000 elements: 29123ns == 2.9123e-05sec
+|^^| Queue push test done. |^^|
+|\/| Queue remove test |\/|
+Time passed for 1000 elements: 46024ns == 4.6024e-05sec
+|^^| Queue remove test done. |^^|
+|\/| Queue push test |\/|
+Time passed for 10000 elements: 298003ns == 0.000298003sec
+|^^| Queue push test done. |^^|
+|\/| Queue remove test |\/|
+Time passed for 10000 elements: 326148ns == 0.000326148sec
+|^^| Queue remove test done. |^^|
+|\/| Queue push test |\/|
+Time passed for 100000 elements: 2761433ns == 0.00276143sec
+|^^| Queue push test done. |^^|
+|\/| Queue remove test |\/|
+Time passed for 100000 elements: 3330621ns == 0.00333062sec
+|^^| Queue remove test done. |^^|
+|\/| Queue push test |\/|
+Time passed for 1e+06 elements: 27803108ns == 0.0278031sec
+|^^| Queue push test done. |^^|
+|\/| Queue remove test |\/|
+Time passed for 1e+06 elements: 34591666ns == 0.0345917sec
+|^^| Queue remove test done. |^^|
+|\/| Queue push test |\/|
+Time passed for 1e+07 elements: 272628334ns == 0.272628sec
+|^^| Queue push test done. |^^|
+|\/| Queue remove test |\/|
+Time passed for 1e+07 elements: 341614788ns == 0.341615sec
+|^^| Queue remove test done. |^^|
+
+
+|\/| Set push test |\/|
+Time passed for 1 elements: 12082ns == 1.2082e-05sec
+|^^| Set push test done |^^|
+|\/| Set remove test |\/|
+Time passed for 1 elements: 4400ns == 4.4e-06sec
+|^^| Set remove test done |^^|
+|\/| Set find test |\/|
+Average search time for existing 1 elements: 1467ns == 1.467e-06sec
+Average search time for nonexisting 1 elements: 1467ns == 1.467e-06sec
+|^^| Set find test done |^^|
+|\/| Set push test |\/|
+Time passed for 10 elements: 11454ns == 1.1454e-05sec
+|^^| Set push test done |^^|
+|\/| Set remove test |\/|
+Time passed for 10 elements: 4539ns == 4.539e-06sec
+|^^| Set remove test done |^^|
+|\/| Set find test |\/|
+Average search time for existing 10 elements: 1752.9ns == 1.7529e-06sec
+Average search time for nonexisting 10 elements: 1634ns == 1.634e-06sec
+|^^| Set find test done |^^|
+|\/| Set push test |\/|
+Time passed for 100 elements: 58176ns == 5.8176e-05sec
+|^^| Set push test done |^^|
+|\/| Set remove test |\/|
+Time passed for 100 elements: 16831ns == 1.6831e-05sec
+|^^| Set remove test done |^^|
+|\/| Set find test |\/|
+Average search time for existing 100 elements: 1472.16ns == 1.47216e-06sec
+Average search time for nonexisting 100 elements: 1422.47ns == 1.42247e-06sec
+|^^| Set find test done |^^|
+|\/| Set push test |\/|
+Time passed for 1000 elements: 625128ns == 0.000625128sec
+|^^| Set push test done |^^|
+|\/| Set remove test |\/|
+Time passed for 1000 elements: 139608ns == 0.000139608sec
+|^^| Set remove test done |^^|
+|\/| Set find test |\/|
+Average search time for existing 1000 elements: 1589.05ns == 1.58905e-06sec
+Average search time for nonexisting 1000 elements: 1575.22ns == 1.57522e-06sec
+|^^| Set find test done |^^|
+|\/| Set push test |\/|
+Time passed for 10000 elements: 7969466ns == 0.00796947sec
+|^^| Set push test done |^^|
+|\/| Set remove test |\/|
+Time passed for 10000 elements: 1389586ns == 0.00138959sec
+|^^| Set remove test done |^^|
+|\/| Set find test |\/|
+Average search time for existing 10000 elements: 1700.16ns == 1.70016e-06sec
+Average search time for nonexisting 10000 elements: 1621.87ns == 1.62187e-06sec
+|^^| Set find test done |^^|
+|\/| Set push test |\/|
+Time passed for 100000 elements: 98562985ns == 0.098563sec
+|^^| Set push test done |^^|
+|\/| Set remove test |\/|
+Time passed for 100000 elements: 15006301ns == 0.0150063sec
+|^^| Set remove test done |^^|
+|\/| Set find test |\/|
+Average search time for existing 100000 elements: 1816.9ns == 1.8169e-06sec
+Average search time for nonexisting 100000 elements: 1742.74ns == 1.74274e-06sec
+|^^| Set find test done |^^|
+|\/| Set push test |\/|
+Time passed for 1e+06 elements: 1405294705ns == 1.40529sec
+|^^| Set push test done |^^|
+|\/| Set remove test |\/|
+Time passed for 1e+06 elements: 149551862ns == 0.149552sec
+|^^| Set remove test done |^^|
+|\/| Set find test |\/|
+Average search time for existing 1e+06 elements: 1948.82ns == 1.94882e-06sec
+Average search time for nonexisting 1e+06 elements: 1836.57ns == 1.83657e-06sec
+|^^| Set find test done |^^|
+|\/| Set push test |\/|
+Time passed for 1e+07 elements: 20746675412ns == 20.7467sec
+|^^| Set push test done |^^|
+|\/| Set remove test |\/|
+Time passed for 1e+07 elements: 1501176182ns == 1.50118sec
+|^^| Set remove test done |^^|
+|\/| Set find test |\/|
+Average search time for existing 1e+07 elements: 2039.83ns == 2.03983e-06sec
+Average search time for nonexisting 1e+07 elements: 1911.37ns == 1.91137e-06sec
+|^^| Set find test done |^^|
